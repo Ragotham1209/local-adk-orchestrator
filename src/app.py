@@ -125,27 +125,27 @@ if st.session_state.draft_spec and not st.session_state.draft_approved:
     edited_spec = st.text_area("Adjust constraints before final commit to execute_local_spec.md:", 
                                value=st.session_state.draft_spec, height=400)
     
-    if st.button("Finalize Spec & Trigger Auditor"):
+    if st.button("Finalize Spec & Drop to Enterprise Agent (A2A Handoff)"):
         system_io.write_local_spec(edited_spec)
         st.success("Spec successfully written to .agent/workflows/execute_local_spec.md")
         st.session_state.draft_approved = True
         
-        with st.spinner("Agent C (The Auditor) is reviewing code complexity..."):
+        with st.spinner("Waiting for Enterprise Agent Execution Logs... Agent C evaluating build_logs/ ..."):
             audit_result = orch.run_auditor()
             st.session_state.auditor_output = audit_result["auditor_output"]
         st.rerun()
 
 if st.session_state.auditor_output:
     st.markdown("---")
-    st.subheader("Auditor Agent Circuit Breaker")
-    st.info("The Auditor found the following insights after parsing git diff and test results:")
+    st.subheader("A2A Continuous Audit Loop (Agent C)")
+    st.info("The Local Auditor read the simulation logs & unit tests dropped by the Enterprise Agent. Here are the findings:")
     st.markdown(st.session_state.auditor_output)
     
-    st.warning("Agent C requests to write 'auto_fix.md'. Do you approve this operation?")
+    st.warning("Agent C requests to write an 'auto_fix.md' spec back to the Enterprise Agent to fix edge cases. Approve this A2A handoff?")
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("✔ Approve Auto-Fix", use_container_width=True):
+        if st.button("✔ Approve Auto-Fix Drop", use_container_width=True):
             result = system_io.trigger_circuit_breaker(st.session_state.auditor_output, is_ui_approved=True)
             st.success(result["message"])
             st.session_state.auditor_output = None

@@ -7,7 +7,9 @@
 ![Google ADK](https://img.shields.io/badge/Agent%20Dev%20Kit-Google-4285F4?logo=google)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-A production-grade local Python orchestration pipeline utilizing Streamlit for the UI and the Google Agent Development Kit (ADK) for AI routing. This framework operates as a local "Prompt Architect" that cross-examines user requirements, manages context dynamically into a Trace Matrix, enforces enterprise coding standards (`SKILLS.md`), and generates highly structured, token-efficient markdown specifications specifically optimized to be consumed by downstream AI IDEs (Antigravity, Cursor, VS Code) for generation.
+A production-grade local Python orchestration pipeline utilizing Streamlit for the UI and the Google Agent Development Kit (ADK) for AI routing. 
+
+This framework operates as a **Local Agent** that cross-examines user requirements, enforces enterprise coding standards (`SKILLS.md`), and drops highly structured markdown specs. It initiates an **Agent-to-Agent (A2A) continuous loop** where downstream **Enterprise Agents** (Antigravity, Cursor, VS Code) consume the specs, execute the code, and drop results/logs back into the system. The Local Agent then automatically reads these logs, audits unit test or simulation edge-case failures, and dynamically drops fix specs back to the Enterprise Agent until the task is complete.
 
 ---
 
@@ -40,6 +42,7 @@ A production-grade local Python orchestration pipeline utilizing Streamlit for t
 | **Orchestration** | Google ADK & Python | Defines modular Clarifier, Optimizer, and Auditor tools |
 | **LLM Gateway** | LiteLLM | Normalizes API requests to the physical local LLM |
 | **Local Inference** | LM Studio (`qwen2.5-coder-7b`) | VRAM-loaded inference execution running zero cloud cost |
+| **A2A Middleware** | File System Handoffs | Asynchronous communication bridge syncing Specs and Logs between agents |
 | **Rule Engine** | `ast` and Python Subprocess | Git diff structural evaluation against time-complexity limits |
 | **Output Intercept** | Markdown (`.md`) Specs | Bridging files generated explicitly for downstream AI context windows |
 
@@ -92,17 +95,15 @@ streamlit run src/app.py
 
 ---
 
-## Agent Data Flow
+## The Agent-to-Agent (A2A) Continuous Loop
 
 ```
-User (Streamlit UI) --> Converses dynamically 
-  --> Agent A (Clarifier) refines facts
-    --> `rtm_state.json` saves constraints
-      --> Agent B (Optimizer) builds Spec
-        --> IDE Consumes Markdown into Code
-          --> Test Cases fail & hit `build_logs/`
-            --> Agent C (Auditor) parses AST git diff
-              --> Circuit Breaker (UI confirms fix approval)
+1. Local Agent (Optimizer) --> Drops initial Spec logic constraints
+  --> 2. Enterprise Agent (IDE) reads Spec and writes/executes Code
+    --> 3. Enterprise Agent drops test results and edge-case logs to `build_logs/`
+      --> 4. Local Agent (Auditor) automatically reads `build_logs/`
+        --> 5. Local Agent drops `auto_fix.md` specs for simulation misses
+          --> 6. Enterprise Agent picks up fixes. Loop continues until tests pass.
 ```
 
 ---
@@ -110,8 +111,8 @@ User (Streamlit UI) --> Converses dynamically
 ## Guardrails & Complexity Enforcement
 
 Agent C (The Auditor) triggers independent evaluations checking structural commits over simply matching code diffs:
-1. Validates standard `pytest` coverage execution
-2. Reconstructs git additions physically checking for inner nested-loop complexity flags via `dsa_engine.py` allowing deterministic fail states.
+1. Validates standard `pytest` coverage execution and simulation results dropped by the Enterprise Agent.
+2. Reconstructs git additions physically checking for inner nested-loop complexity flags via `dsa_engine.py` allowing deterministic fail states before the A2A loop completes.
 
 ---
 
