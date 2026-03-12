@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+.chat_history.json
+rtm_state.json
+build_logs/
+.agent/
+*.pyc
