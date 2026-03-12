@@ -5,7 +5,7 @@ from pathlib import Path
 from orchestrator import Orchestrator
 import system_io
 
-BASE_DIR = Path(__file__).parent.resolve()
+BASE_DIR = Path(__file__).parent.parent.resolve()
 HISTORY_FILE = BASE_DIR / ".chat_history.json"
 RTM_FILE = BASE_DIR / "rtm_state.json"
 

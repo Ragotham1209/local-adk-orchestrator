@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 # Base directories configuration
-BASE_DIR = Path(__file__).parent.resolve()
+BASE_DIR = Path(__file__).parent.parent.resolve()
 WORKFLOWS_DIR = BASE_DIR / ".agent" / "workflows"
 BUILD_LOGS_DIR = BASE_DIR / "build_logs"
 
